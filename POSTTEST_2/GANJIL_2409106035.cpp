@@ -67,12 +67,18 @@ int main() {
                 tampilkanInventory();
                 break;
             case 0:
-                cout << "\nTerima kasih telah menggunakan Game Inventory Management!\n";
+                cout << "Terima kasih telah menggunakan Game Inventory Management!\n";
                 running = false;
                 break;
             default:
-                cout << "\nPilihan tidak valid! Silakan pilih 0-5.\n";
+                cout << "Pilihan tidak valid! Silakan pilih 0-5.\n";
                 break;
+        }
+        
+        if (running) {
+            cout << "\nTekan Enter untuk melanjutkan...";
+            cin.ignore();
+            cin.get();
         }
     }
     
@@ -81,7 +87,7 @@ int main() {
 
 void inputIdentitas() {
     cout << "GAME INVENTORY MANAGEMENT\n";
-    cout << "SETUP IDENTITAS\n\n";
+    cout << "SETUP IDENTITAS\n";
     
     cout << "Masukkan Nama: ";
     getline(cin, identitas.nama);
@@ -89,25 +95,28 @@ void inputIdentitas() {
     cout << "Masukkan NIM : ";
     getline(cin, identitas.nim);
     
-    cout << "\nSelamat datang " << identitas.nama << " (" << identitas.nim << ")!\n";
+    cout << "Selamat datang " << identitas.nama << " (" << identitas.nim << ")!\n";
     cout << "Jumlah item default: " << JUMLAH_DEFAULT << " (berdasarkan 2 digit terakhir NIM)\n";
     cout << "Posisi sisip: " << POSISI_SISIP << " (berdasarkan digit terakhir NIM + 1)\n\n";
 }
 
 void tampilkanMenu() {
-    cout << "\nGAME INVENTORY MANAGEMENT\n";
-    cout << "[ " << identitas.nama << " - " << identitas.nim << " ]\n\n";
-    cout << "1. Tambah Item Baru\n";
-    cout << "2. Sisipkan Item\n";
-    cout << "3. Hapus Item Terakhir\n";
-    cout << "4. Gunakan Item\n";
-    cout << "5. Tampilkan Inventory\n";
-    cout << "0. Keluar\n";
+    cout << "\n+----------------------------------------------------------------------+\n";
+    cout << "|                    GAME INVENTORY MANAGEMENT                         |\n";
+    cout << "|                   [ " << identitas.nama << " - " << identitas.nim << " ]                              |\n";
+    cout << "+----------------------------------------------------------------------+\n";
+    cout << "| 1. Tambah Item Baru                                                  |\n";
+    cout << "| 2. Sisipkan Item                                                     |\n";
+    cout << "| 3. Hapus Item Terakhir                                               |\n";
+    cout << "| 4. Gunakan Item                                                      |\n";
+    cout << "| 5. Tampilkan Inventory                                               |\n";
+    cout << "| 0. Keluar                                                            |\n";
+    cout << "+----------------------------------------------------------------------+\n";
     cout << "Pilih menu (0-5): ";
 }
 
 void tambahItemBaru() {
-    cout << "\nTAMBAH ITEM BARU\n";
+    cout << "TAMBAH ITEM BARU\n";
     
     Data itemBaru;
     
@@ -128,8 +137,8 @@ void tambahItemBaru() {
 }
 
 void sisipkanItem() {
-    cout << "\nSISIPKAN ITEM\n";
-    cout << "Item akan disisipkan pada posisi ke-" << POSISI_SISIP << " (berdasarkan NIM)\n\n";
+    cout << "SISIPKAN ITEM\n";
+    cout << "Item akan disisipkan pada posisi ke-" << POSISI_SISIP << "\n";
     
     Data itemBaru;
     
@@ -144,14 +153,14 @@ void sisipkanItem() {
     
     insertDiPosisi(itemBaru, POSISI_SISIP);
     
-    cout << "\nItem '" << itemBaru.namaItem << "' berhasil disisipkan!\n";
+    cout << "Item '" << itemBaru.namaItem << "' berhasil disisipkan!\n";
     cout << "Tipe: " << itemBaru.tipe << "\n";
     cout << "Jumlah: " << itemBaru.jumlah << " (otomatis berdasarkan NIM)\n";
     cout << "Posisi: " << POSISI_SISIP << "\n";
 }
 
 void hapusItemTerakhir() {
-    cout << "\nHAPUS ITEM TERAKHIR\n";
+    cout << "HAPUS ITEM TERAKHIR\n";
     
     if (hapusTerakhir()) {
         cout << "Item terakhir berhasil dihapus dari inventory!\n";
@@ -161,7 +170,7 @@ void hapusItemTerakhir() {
 }
 
 void gunakanItem() {
-    cout << "\nGUNAKAN ITEM\n";
+    cout << "GUNAKAN ITEM\n";
     
     if (head == nullptr) {
         cout << "Inventory kosong! Tidak ada item yang dapat digunakan.\n";
@@ -181,7 +190,7 @@ void gunakanItem() {
 }
 
 void tampilkanInventory() {
-    cout << "\nINVENTORY GAME\n";
+    cout << "INVENTORY GAME\n";
     
     if (head == nullptr) {
         cout << "Inventory kosong! Belum ada item yang tersimpan.\n";
@@ -197,7 +206,7 @@ void tampilkanInventory() {
         cout << nomor << ". Nama   : " << current->data.namaItem << "\n";
         cout << "   Tipe   : " << current->data.tipe << "\n";
         cout << "   Jumlah : " << current->data.jumlah << "\n";
-        cout << "   ------------------------\n";
+        cout << "   ------------------------";
         
         current = current->next;
         nomor++;
