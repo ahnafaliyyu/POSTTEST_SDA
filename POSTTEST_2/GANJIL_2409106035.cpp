@@ -74,12 +74,6 @@ int main() {
                 cout << "\nPilihan tidak valid! Silakan pilih 0-5.\n";
                 break;
         }
-        
-        if (running) {
-            cout << "\nTekan Enter untuk melanjutkan...";
-            cin.ignore();
-            cin.get();
-        }
     }
     
     return 0;
