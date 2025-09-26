@@ -2,6 +2,7 @@
 #include <string>
 #include <limits>
 #include <iomanip>
+#include <cctype>
 
 using namespace std;
 
@@ -35,7 +36,9 @@ enum Halaman {
     SISIP_ITEM,
     HAPUS_ITEM,
     GUNAKAN_ITEM,
-    LIHAT_INVENTORY
+    LIHAT_INVENTORY,
+    LIHAT_INVENTORY_BELAKANG,
+    LIHAT_DETAIL
 };
 
 struct AppState {
@@ -73,9 +76,11 @@ namespace View {
         cout << "| 3. Hapus Item Terakhir                                               |\n";
         cout << "| 4. Gunakan Item                                                      |\n";
         cout << "| 5. Tampilkan Inventory                                               |\n";
+        cout << "| 6. Tampilkan Inventory (Dari Belakang)                               |\n";
+        cout << "| 7. Tampilkan Detail Item (ID/Nama)                                   |\n";
         cout << "| 0. Keluar                                                            |\n";
         cout << "+----------------------------------------------------------------------+\n";
-        cout << "Pilih menu (0-5): ";
+        cout << "Pilih menu (0-7): ";
     }
 
     void renderInventory(const AppState& state) {
@@ -99,6 +104,30 @@ namespace View {
             
             current = current->next;
             nomor++;
+        }
+    }
+
+    void renderInventoryReverse(const AppState& state) {
+        cout << "INVENTORY GAME (Dari Belakang)\n";
+        
+        if (state.inventory.tail == nullptr) {
+            cout << "Inventory kosong! Belum ada item yang tersimpan.\n";
+            return;
+        }
+        
+        cout << "Total item: " << state.inventory.jumlahItem << "\n\n";
+        
+        Node* current = state.inventory.tail;
+        int nomor = state.inventory.jumlahItem;
+        
+        while (current != nullptr) {
+            cout << nomor << ". Nama   : " << current->data.namaItem << "\n";
+            cout << "   Tipe   : " << current->data.tipe << "\n";
+            cout << "   Jumlah : " << current->data.jumlah << "\n";
+            cout << "   ------------------------\n";
+            
+            current = current->prev;
+            nomor--;
         }
     }
 
@@ -126,6 +155,12 @@ namespace View {
                 break;
             case LIHAT_INVENTORY:
                 renderInventory(state);
+                break;
+            case LIHAT_INVENTORY_BELAKANG:
+                renderInventoryReverse(state);
+                break;
+            case LIHAT_DETAIL:
+                cout << "DETAIL ITEM\n";
                 break;
         }
     }
@@ -307,6 +342,87 @@ namespace UseCase {
         return false;
     }
 
+    Node* cariById(const DoublyLinkedList& inv, int id) {
+        Node* current = inv.head;
+        while (current != nullptr) {
+            if (current->data.no_item == id) return current;
+            current = current->next;
+        }
+        return nullptr;
+    }
+
+    Node* cariByNama(const DoublyLinkedList& inv, const string& nama) {
+        Node* current = inv.head;
+        while (current != nullptr) {
+            if (current->data.namaItem == nama) return current;
+            current = current->next;
+        }
+        return nullptr;
+    }
+
+    void lihatInventoryBelakang(AppState& state) {
+        state.halamanAktif = LIHAT_INVENTORY_BELAKANG;
+        cout << "\nTekan Enter untuk kembali ke menu utama...";
+        cin.ignore();
+        cin.get();
+        state.halamanAktif = UTAMA;
+    }
+
+    void lihatDetailItem(AppState& state) {
+        if (state.inventory.head == nullptr) {
+            state.pesanInfo = "Inventory kosong! Tidak ada item untuk ditampilkan.";
+            state.halamanAktif = UTAMA;
+            cout << "\nTekan Enter untuk melanjutkan...";
+            cin.ignore();
+            cin.get();
+            return;
+        }
+
+        cout << "Masukkan ID (angka) atau Nama item: ";
+        clearInputBuffer();
+        string query;
+        getline(cin, query);
+
+        bool allDigits = !query.empty();
+        for (char c : query) {
+            if (!isdigit(static_cast<unsigned char>(c))) {
+                allDigits = false;
+                break;
+            }
+        }
+
+        const Node* found = nullptr;
+        if (allDigits) {
+            int id = stoi(query);
+            Node* cur = state.inventory.head;
+            while (cur != nullptr) {
+                if (cur->data.no_item == id) { found = cur; break; }
+                cur = cur->next;
+            }
+        } else {
+            Node* cur = state.inventory.head;
+            while (cur != nullptr) {
+                if (cur->data.namaItem == query) { found = cur; break; }
+                cur = cur->next;
+            }
+        }
+
+        if (found) {
+            cout << "Detail Item\n";
+            cout << "ID     : " << found->data.no_item << "\n";
+            cout << "Nama   : " << found->data.namaItem << "\n";
+            cout << "Tipe   : " << found->data.tipe << "\n";
+            cout << "Jumlah : " << found->data.jumlah << "\n";
+        } else {
+            cout << "Data dengan " << (allDigits ? "ID" : "Nama") << " '" << query << "' tidak ditemukan.\n";
+        }
+
+        cout << "\nTekan Enter untuk melanjutkan...";
+        cin.get();
+        state.pesanInfo = "";
+        state.halamanAktif = UTAMA;
+    }
+
     void inputIdentitas(AppState& state) {
         cout << "GAME INVENTORY MANAGEMENT\n";
         cout << "SETUP IDENTITAS\n";
@@ -419,8 +535,12 @@ namespace UseCase {
             state.halamanAktif = GUNAKAN_ITEM;
         } else if (input == "5") {
             state.halamanAktif = LIHAT_INVENTORY;
+        } else if (input == "6") {
+            state.halamanAktif = LIHAT_INVENTORY_BELAKANG;
+        } else if (input == "7") {
+            state.halamanAktif = LIHAT_DETAIL;
         } else {
-            state.pesanInfo = "Pilihan tidak valid! Silakan pilih 0-5.";
+            state.pesanInfo = "Pilihan tidak valid! Silakan pilih 0-7.";
         }
     }
 }
@@ -451,6 +571,10 @@ int main() {
             UseCase::gunakanItem(state);
         } else if (state.halamanAktif == LIHAT_INVENTORY) {
             UseCase::lihatInventory(state);
+        } else if (state.halamanAktif == LIHAT_INVENTORY_BELAKANG) {
+            UseCase::lihatInventoryBelakang(state);
+        } else if (state.halamanAktif == LIHAT_DETAIL) {
+            UseCase::lihatDetailItem(state);
         }
         
         // Reset pesan info setelah ditampilkan
